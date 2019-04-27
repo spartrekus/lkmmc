@@ -359,7 +359,7 @@ void strninput( char *mytitle, char *foostr )
          printf( ": %s", strmsg );
 
          ch = getchar();
-         if ( ch == 10 )       foousergam = 1;
+         if ( ch == 10 )            foousergam = 1;
 
 	 else if ( ch == 27 ) 
 	      strncpy( strmsg, ""  ,  PATH_MAX );
@@ -612,15 +612,49 @@ int main( int argc, char *argv[])
        return 0;
      }
 
-     int viewpan[5];
-     viewpan[ 1 ] = 1;
-     viewpan[ 2 ] = 1;
+
+    struct winsize w; // need ioctl and unistd 
+    ioctl( STDOUT_FILENO, TIOCGWINSZ, &w );
+    char string[PATH_MAX];
+    ////////////////////////////////////////////////////////
+    if ( argc == 2)
+    if ( strcmp( argv[1] , "-size" ) ==  0 ) 
+    {
+              printf("Screen\n" );
+              printf("Env HOME:  %s\n", getenv( "HOME" ));
+              printf("Env PATH:  %s\n", getcwd( string, PATH_MAX ) );
+              printf("Env TERM ROW:  %d\n", w.ws_row );
+              printf("Env TERM COL:  %d\n", w.ws_col );
+              return 0;
+    }    
+
+
+    int viewpan[5];
+    viewpan[ 1 ] = 1;
+    viewpan[ 2 ] = 1;
+    ////////////////////////////////////////////////////////
+    char cwd[PATH_MAX];
+    char pathpan[5][PATH_MAX];
+
+
+
      ////////////////////////////////////////////////////////
      if ( argc == 2)
      if ( strcmp( argv[1] , "-1" ) ==  0 ) 
      {
            viewpan[ 1 ] = 1;
            viewpan[ 2 ] = 0;
+     }
+
+     ////////////////////////////////////////////////////////
+     if ( argc == 3)
+     if ( strcmp( argv[1] , "-1" ) ==  0 ) 
+     {
+          viewpan[ 1 ] = 1;
+          viewpan[ 2 ] = 0;
+          chdir( argv[ 2 ] );
+          strncpy( pathpan[ 1 ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+          strncpy( pathpan[ 2 ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
      }
 
      ////////////////////////////////////////////////////////
@@ -634,9 +668,6 @@ int main( int argc, char *argv[])
      }
 
 
-    ////////////////////////////////////////////////////////
-    char cwd[PATH_MAX];
-    char pathpan[5][PATH_MAX];
     ////////////////////////////////////////////////////////
     if ( argc == 2)
     if ( strcmp( argv[1] , "" ) !=  0 )
@@ -661,9 +692,6 @@ int main( int argc, char *argv[])
     strncpy( file_filter[2] ,   "" , PATH_MAX );
     strncpy( clipboard_filter , "" , PATH_MAX );
 
-    struct winsize w; // need ioctl and unistd 
-    ioctl( STDOUT_FILENO, TIOCGWINSZ, &w );
-    char string[PATH_MAX];
     ////////////////////////////////////////////////////////
     if ( argc == 2)
     if ( strcmp( argv[1] , "-s" ) ==  0 ) 
@@ -720,12 +748,73 @@ int main( int argc, char *argv[])
        ch = getchar();
 
        chdir( pathpan[ pansel ] );
-       //if (ch == 'q')            gameover = 1; 
+
        if      (ch ==  'Q')      gameover = 1;
        else if (ch ==  'q')      gameover = 1;
-       else if (ch ==  't')      gameover = 1;
+       else if ( ch == 'r' ) 
+       {  enable_waiting_for_enter();  
+          if ( fexist( "/usr/local/bin/lfview" ) == 1 ) 
+           nrunwith(  " lfview ",  nexp_user_fileselection    );   
+          else
+           nrunwith(  " less ",  nexp_user_fileselection    );   }
 
-       else if ( ch == 4 ) 
+       ////////////////////////////
+       else if ( ch == 15 ) 
+       {
+           strninput( " Change Directory (chdir) ", "" );
+           strncpy( string, userstr , PATH_MAX );
+           printf("\n" );
+           printf("\n" );
+           printf("got: \"%s\"\n", string );
+           if ( strcmp( string , "" ) != 0 )
+           {
+               chdir( pathpan[ pansel ] );
+               chdir( string ) ; 
+               nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; 
+               strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+           }
+       }
+       //////////////////////
+       else if ( ch == 'O' ) 
+       {
+           strninput( " Change Directory (chdir) from HOME.", "" );
+           strncpy( string, userstr , PATH_MAX );
+           printf("\n" );
+           printf("got: \"%s\"\n", string );
+           if ( strcmp( string , "" ) != 0 )
+           {
+               chdir( getenv( "HOME" ) );
+               chdir( string ); 
+               nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; 
+               strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+           }
+       }
+
+
+
+     // run it
+     else if (  ( ch == 18 )    || ( ch == 5 )) 
+     {
+         strncpy( userstrsel, nexp_user_fileselection , PATH_MAX );
+         ansigotoyx( rows-1 , 0 );
+         printhline( );
+         ansigotoyx( rows , 0 );
+         printf( "Open menu...\n" );
+         printhline( );
+         ch = getchar();
+         printf( "Key %d\n", ch );
+
+         if ( ch == 'm' )      { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
+         else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
+         else if ( ch == 'M' ) { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer -zoom ", userstrsel ); }
+         else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
+         else if ( ch == 'F' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh -FZ ", userstrsel ); }
+         else if ( ch == 'v' )  nrunwith( " vim  ", userstrsel );
+         else if ( ch == 'l' )  nrunwith( " tless  ", userstrsel );
+         ch = 0;
+     }
+
+       else if ( ch == 15 )   // working ctrl + o
        {
            strninput( " Change Directory (chdir) ", "" );
            strncpy( string, userstr , PATH_MAX );
@@ -742,29 +831,11 @@ int main( int argc, char *argv[])
        }
 
 
-     else if ( ch == 15 )  
-     {
-         strncpy( userstrsel, nexp_user_fileselection , PATH_MAX );
-         ansigotoyx( rows-1 , 0 );
-         printhline( );
-         ansigotoyx( rows , 0 );
-         printf( "Open menu...\n" );
-         printhline( );
-         ch = getchar();
-         printf( "Key %d\n", ch );
-         if ( ch == 'm' )      { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
-         else if ( ch == 'p' ) { printf( "mupdf\n" );    nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
-         else if ( ch == 'M' ) { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer -zoom ", userstrsel ); }
-         else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
-         else if ( ch == 'F' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh -FZ ", userstrsel ); }
-         else if ( ch == 'v' )  nrunwith( " vim  ", userstrsel );
-         else if ( ch == 'l' )  nrunwith( " tless  ", userstrsel );
-         ch = 0;
-     }
 
 
-      else if ( ch == 'r' )   {  enable_waiting_for_enter();  nrunwith(  " lfview ",  nexp_user_fileselection    );   }
-      else if ( ch == 'z' )   {  enable_waiting_for_enter();  nrunwith(  " lfv    ",  nexp_user_fileselection    );   }
+      else if ( ch == 'z' )   {  enable_waiting_for_enter();  nrunwith(  " tless   ",  nexp_user_fileselection    );   }
+
+
 
       else if ( ch == 27 )  
       {
@@ -1059,18 +1130,6 @@ int main( int argc, char *argv[])
 
 
 
-       else if ( ch == 'r' ) 
-       {
-           clear_screen();
-           strncpy( string , "  " , PATH_MAX );
-           strncat( string , " less " , PATH_MAX - strlen( string ) -1 );
-           strncat( string , " " , PATH_MAX - strlen( string ) -1 );
-           strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
-           strncat( string ,  nexp_user_fileselection , PATH_MAX - strlen( string ) -1 );
-           strncat( string , "\" " , PATH_MAX - strlen( string ) -1 );
-           nsystem( string ); 
-       }
-
         else if ( ( ch == '"')  || ( ch == 'm')       )
         {
             chdir( pathpan[ pansel ] );
@@ -1095,6 +1154,12 @@ int main( int argc, char *argv[])
        {
              if      ( strcmp( fextension( nexp_user_fileselection ) , "mp4" ) == 0 )
                nrunwith( " mplayer " , nexp_user_fileselection );
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "PDF" ) == 0 )
+               nrunwith( " mupdf " , nexp_user_fileselection );
+
              else if ( strcmp( fextension( nexp_user_fileselection ) , "avi" ) == 0 )
                nrunwith( " mplayer " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "MP4" ) == 0 )
@@ -1103,22 +1168,33 @@ int main( int argc, char *argv[])
                nrunwith( " mplayer " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "wav" ) == 0 )
                nrunwith( " mplayer " , nexp_user_fileselection );
+
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
-               nrunwith( " feh -FZ " , nexp_user_fileselection );
+               nrunwith( " feh  " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "png" ) == 0 )
-               nrunwith( " feh -FZ " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "PDF" ) == 0 )
-               nrunwith( " mupdf " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "mrk" ) == 0 )
-               nrunwith( " vim " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "bmr" ) == 0 )
-               nrunwith( " vim " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "txt" ) == 0 )
-               nrunwith( " vim " , nexp_user_fileselection );
+               nrunwith( " feh  " , nexp_user_fileselection );
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "gif" ) == 0 )
+               nrunwith( " feh  " , nexp_user_fileselection );
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "doc" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "fig" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m  xfig " , nexp_user_fileselection );
+
+
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "mrk" ) == 0 )
+             //  nrunwith( " vim " , nexp_user_fileselection );
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "bmr" ) == 0 )
+             //  nrunwith( " vim " , nexp_user_fileselection );
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "txt" ) == 0 )
+             //  nrunwith( " vim " , nexp_user_fileselection );
+
              else if ( strcmp( fextension( nexp_user_fileselection ) , "ws1" ) == 0 )
                nrunwith( " freelotus123 " , nexp_user_fileselection );
+
              else 
                nrunwith( " rox " , nexp_user_fileselection );
        }
@@ -1152,6 +1228,7 @@ int main( int argc, char *argv[])
        }
 
 
+
        else if ( ch == 'k')      nexp_user_sel[pansel]--;
        else if ( ch == 'j')      nexp_user_sel[pansel]++;
        else if ( ch == 'g')      
@@ -1175,14 +1252,18 @@ int main( int argc, char *argv[])
 
        else if ( ch == 't' ) 
        {
-           /*clear_screen();
+           clear_screen();
            strncpy( string , "  " , PATH_MAX );
-           strncat( string , " tless " , PATH_MAX - strlen( string ) -1 );
+           strncat( string , " lkview " , PATH_MAX - strlen( string ) -1 );
            strncat( string , " " , PATH_MAX - strlen( string ) -1 );
            strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
            strncat( string ,  nexp_user_fileselection , PATH_MAX - strlen( string ) -1 );
            strncat( string , "\" " , PATH_MAX - strlen( string ) -1 );
-           nsystem( string );  */
+           nsystem( string );  
+       }
+
+       else if ( ch == 'T' ) 
+       {
            if (   tc_det_dir_type == 0 ) 
               tc_det_dir_type = 1;
            else
@@ -1393,12 +1474,12 @@ int main( int argc, char *argv[])
             gfxframe(     rows*30/100 , cols*30/100, rows*70/100, cols*70/100 );
             mvcenter(     rows*30/100, "| MENU |");
             foo = 1;
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "s: /bin/sh ");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: xterm");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "u: unidoc");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "U: xunidoc");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "s: sunidoc");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "r: tless ");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "c: naclock");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "l: lock console");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "y: Quit");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "n: Abort");
             ansigotoyx(  rows*70/100 , cols*70/100 );
@@ -1406,19 +1487,17 @@ int main( int argc, char *argv[])
             ansigotoyx( rows-1, 0 );
             if           ( ch == 'y' ) gameover = 1;
             else if      ( ch == 'Y' ) gameover = 1;
+            else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
+            else if      ( ch == 'u' ) nrunwith( "  unidoc " , nexp_user_fileselection );
+            else if      ( ch == 'l' ) {  nsystem( " lfclock " );  }
+            else if      ( ch == 'L' ) {  nsystem( " cacafire " );  }
+
             else if      ( ch == 's' ) {  nsystem( " sh " );  }
             else if      ( ch == 'x' ) {  nsystem( " xterm " );  }
             else if      ( ch == 'c' ) {  nsystem( " naclock " );  }
-            else if      ( ch == 'r' ) {  enable_waiting_for_enter();  nrunwith(  " tless ",  nexp_user_fileselection    );   }
+            else if      ( ch == 'r' ) {  enable_waiting_for_enter();  nrunwith(  " less ",  nexp_user_fileselection    );   }
             else if      ( ch == 'U' ) 
               nrunwith( "  export DISPLAY=:0 ; xunidoc " , nexp_user_fileselection );
-            else if      ( ch == 'u' ) 
-            {
-              //if  ( strcmp( fextension( nexp_user_fileselection ) , "mrk" ) == 0 )
-              nrunwith( "  unidoc " , nexp_user_fileselection );
-              //else if      ( strcmp( fextension( nexp_user_fileselection ) , "bmr" ) == 0 )
-              //  nrunwith( "  export DISPLAY=:0 ; unidoc " , nexp_user_fileselection );
-            } 
             else if ( ch == '1' )
             {  if ( viewpan[ 1 ] == 1 )   viewpan[ 1 ] = 0; else viewpan[ 1 ] = 1; }
             else if ( ch == '2' )
