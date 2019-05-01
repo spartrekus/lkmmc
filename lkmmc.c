@@ -48,6 +48,7 @@
 
 int  rows, cols ; 
 int  pansel = 1;
+int  show_path_title = 1; 
 char pathclipboard[PATH_MAX];
 char clipboard_filter[PATH_MAX];
 int  scrollyclipboard = 0;
@@ -98,7 +99,6 @@ void readfile( char *filesource )
    }
 }
    
-
 
 
 
@@ -604,6 +604,25 @@ char *fextension(char *str)
 int main( int argc, char *argv[])
 {
 
+
+    ////////////////////////////////////////////////////////
+    if ( argc == 2)
+    if ( strcmp( argv[1] , "-yellow" ) ==  0 ) 
+    {
+       printf("%syellow\n", KYEL);
+       return 0;
+    }
+
+    ////////////////////////////////////////////////////////
+    if ( argc == 2)
+    if ( strcmp( argv[1] , "-green" ) ==  0 ) 
+    {
+       printf("%sgreen\n", KGRN);
+       return 0;
+    }
+
+
+
      ////////////////////////////////////////////////////////
      if ( argc == 2)
      if ( strcmp( argv[1] , "-t" ) ==  0 ) 
@@ -711,7 +730,8 @@ int main( int argc, char *argv[])
     int gameover = 0;
     int foo;
     char userstrsel[PATH_MAX];
-    
+    char lkmmc_message[PATH_MAX];
+    strncpy( lkmmc_message, "" , PATH_MAX );
 
     while ( gameover == 0 ) 
     {
@@ -720,16 +740,20 @@ int main( int argc, char *argv[])
        clear_screen();
 
        ansigotoyx( 0, 0 );
-       if ( pansel == 1 )
-         printf( "|*1 |[%s]", pathpan[ 1 ] );
-       else 
-         printf( "| 1 |[%s]", pathpan[ 1 ] );
-
-       ansigotoyx( 0, cols/2 );
-       if ( pansel == 2 )
-         printf( "|*2 |[%s]", pathpan[ 2 ] );
-       else 
-         printf( "| 2 |[%s]", pathpan[ 2 ] );
+       if ( show_path_title == 1 ) 
+       {
+         ansigotoyx( 0, 0 );
+         if ( pansel == 1 )
+           printf( "|*1 |[%s]", pathpan[ 1 ] );
+         else 
+           printf( "| 1 |[%s]", pathpan[ 1 ] );
+  
+         ansigotoyx( 0, cols/2 );
+         if ( pansel == 2 )
+           printf( "|*2 |[%s]", pathpan[ 2 ] );
+         else 
+           printf( "| 2 |[%s]", pathpan[ 2 ] );
+       }
 
        chdir( pathpan[ 1 ] );
        if ( viewpan[ 1 ] == 1 ) 
@@ -751,12 +775,17 @@ int main( int argc, char *argv[])
 
        if      (ch ==  'Q')      gameover = 1;
        else if (ch ==  'q')      gameover = 1;
+
        else if ( ch == 'r' ) 
        {  enable_waiting_for_enter();  
-          if ( fexist( "/usr/local/bin/lfview" ) == 1 ) 
-           nrunwith(  " lfview ",  nexp_user_fileselection    );   
-          else
-           nrunwith(  " less ",  nexp_user_fileselection    );   }
+          if (  fexist(  nexp_user_fileselection    ) == 1 ) 
+          {
+             if ( fexist( "/usr/local/bin/lfview" ) == 1 ) 
+              nrunwith(  " lfview ",  nexp_user_fileselection    );   
+             else
+              nrunwith(  " less ",  nexp_user_fileselection    );   
+          }
+       }
 
        ////////////////////////////
        else if ( ch == 15 ) 
@@ -793,7 +822,7 @@ int main( int argc, char *argv[])
 
 
      // run it
-     else if (  ( ch == 18 )    || ( ch == 5 )) 
+     else if (  ( ch == 18 )    || ( ch == 5 ))   //c-r 18
      {
          strncpy( userstrsel, nexp_user_fileselection , PATH_MAX );
          ansigotoyx( rows-1 , 0 );
@@ -801,16 +830,38 @@ int main( int argc, char *argv[])
          ansigotoyx( rows , 0 );
          printf( "Open menu...\n" );
          printhline( );
+          
+
+           printf("%s", KCYN);
+           gfxrect(   rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
+           gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
+           mvcenter(  rows*10/100+1, "| MENU LKMMC |");
+           foo = 1;
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " e: ed ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " m: xmplayer ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " p: xmupdf ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: tless ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " v: vim ");
+           printf("%s", KWHT);
+
          ch = getchar();
+         enable_waiting_for_enter();
+         printf( "\n" );
+         printf( "Term!\n" );
+         printf( "\n" );
+
          printf( "Key %d\n", ch );
 
          if ( ch == 'm' )      { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
+         else if ( ch == 'e' )  nrunwith( " ed  ", userstrsel );
+         else if ( ch == 't' )  nrunwith( " tless  ", userstrsel );
          else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
-         else if ( ch == 'M' ) { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer -zoom ", userstrsel ); }
          else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
-         else if ( ch == 'F' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh -FZ ", userstrsel ); }
          else if ( ch == 'v' )  nrunwith( " vim  ", userstrsel );
-         else if ( ch == 'l' )  nrunwith( " tless  ", userstrsel );
+         else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
          ch = 0;
      }
 
@@ -878,17 +929,19 @@ int main( int argc, char *argv[])
        {
             enable_waiting_for_enter();
             clear_screen();
-            printf( "======= \n" );
-            printf( "= LFM = \n" );
-            printf( "======= \n" );
+            printf( "========= \n" );
+            printf( "= LKMMC = \n" );
+            printf( "========= \n" );
             printf( " \n" );
             printf( " \n" );
-            ///printf("PATH:  %s \n", getcwd( cwd, PATH_MAX) );
-            //printf( " \n" );
+
             printf("PATH 1: %s \n", pathpan[ 1 ] );
             printf( " \n" );
             printf("PATH 2: %s \n", pathpan[ 2 ] );
             printf( " \n" );
+            printf("File [%d]: %s \n", fexist(  nexp_user_fileselection    ) ,  nexp_user_fileselection    );
+            printf( " \n" );
+
             //////////////////
             ansigotoyx( rows-1, 0 );
             for( foo = 0 ;  foo <= cols-1 ; foo++) printf( " " );
@@ -1236,11 +1289,20 @@ int main( int argc, char *argv[])
            ch = getchar();
            if ( ch == 'g' )
            { nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; }
+
            else if ( ch == '1' )
            {  if ( viewpan[ 1 ] == 1 )   viewpan[ 1 ] = 0; else viewpan[ 1 ] = 1; }
            else if ( ch == '2' )
            { if ( viewpan[ 2 ] == 1 )    viewpan[ 2 ] = 0; else viewpan[ 2 ] = 1; }
-           ch = 0;
+
+            else if ( ch == 't' ) 
+            {
+                if (   show_path_title == 0 ) 
+                   show_path_title = 1;
+                else
+                   show_path_title = 0;
+            }
+            ch = 0;
        }
        else if ( ch == 'G')      { nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; }
        else if ( ch == 'u')      nexp_user_scrolly[pansel]-=4;
@@ -1270,21 +1332,10 @@ int main( int argc, char *argv[])
               tc_det_dir_type = 0;
        }
 
-       else if ( ch == 'T' ) 
-       {
-           clear_screen();
-           strncpy( string , "  " , PATH_MAX );
-           strncat( string , " mview " , PATH_MAX - strlen( string ) -1 );
-           strncat( string , " " , PATH_MAX - strlen( string ) -1 );
-           strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
-           strncat( string ,  nexp_user_fileselection , PATH_MAX - strlen( string ) -1 );
-           strncat( string , "\" " , PATH_MAX - strlen( string ) -1 );
-           nsystem( string ); 
-       }
 
 
-
-       else if ( ch == 'v' )   {  enable_waiting_for_enter();  nrunwith(  " vim  ",  nexp_user_fileselection    );   }
+       else if ( ch == 'v' )
+       {  enable_waiting_for_enter();  nrunwith(  " vim  ",  nexp_user_fileselection    );   }
 
 
         else if ( ch == '!') 
@@ -1353,8 +1404,23 @@ int main( int argc, char *argv[])
           }
        }
 
+       else if ( ch == 'M' ) 
+       {
+            clear_screen( );
+            ansigotoyx( rows/2-1 , 0 );
+            printhline( );
+            ansigotoyx( rows/2 , 0 );
+            printf( "Interpreter LKMMC Message \n" );
+            ansigotoyx( rows/2+1 , 0 );
+            printf("\n" );
+            strninput( "", "" );
+            strncpy( string, userstr , PATH_MAX );
+            printf("got: \"%s\"\n", string );
+            strncpy( lkmmc_message, string, PATH_MAX );
+       }
 
-       else if ( ( ch == ':' ) || ( ch == 14 ) )  //ctrln if limited keys
+
+       else if ( ch == ':' ) 
        {
             clear_screen( );
             ansigotoyx( rows/2-1 , 0 );
@@ -1421,6 +1487,17 @@ int main( int argc, char *argv[])
               mvcenter(  (int)  rows*30/100,   "| MENU |");
               getchar();
             }    
+
+            else if ( strcmp( string, "REBOOT" ) == 0 )  
+            {
+                nsystem( " reboot " ); 
+            }    
+
+            else if ( strcmp( string, "rc" ) == 0 )  
+            {
+                nsystem( " less /etc/rc.conf " ); 
+            }    
+
             else if ( strcmp( string, "key" ) == 0 )  
             {
                  ch = getchar(); printf( "\nKEY %d %c\n", ch , ch );
@@ -1465,12 +1542,46 @@ int main( int argc, char *argv[])
        else if ( ch == 'i' )
        {  if ( pansel == 1 )   pansel = 2 ; else pansel = 1; }
 
+       else if ( ch == '?' )
+       {
+           home(); 
+           ansigotoyx( 1 , 0 );
+           printhline( );
+
+           home(); 
+           ansigotoyx( 1 , 0 );
+           mvcenter( 1 , lkmmc_message );
+
+           printf("%s", KCYN);
+           gfxrect(   rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
+           gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
+           mvcenter(  rows*10/100+1, "| HELP LKMMC |");
+           foo = 1;
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  q: Quit");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  r: view file");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  t: lkview file");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  !: run with (system command)");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  :: internal command");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  $: system command");
+           printf("%s", KWHT);
+
+            //////////////////
+            ansigotoyx( rows-1, 0 );
+            for( foo = 0 ;  foo <= cols-1 ; foo++) printf( " " );
+            ansigotoyx( rows-1, 0 ); printf( "<Press Key>" );
+            disable_waiting_for_enter();
+            getchar();
+            ch = 0;
+            //////////////////
+       }
 
 
        else if  ( ( ch == 'A') || ( ch == 'a') || ( ch == 'q' ) )
        {
             // small size menu
-            gfxrect(     rows*30/100 , cols*30/100, rows*70/100, cols*70/100 );
+            gfxrect(      rows*30/100 , cols*30/100, rows*70/100, cols*70/100 );
             gfxframe(     rows*30/100 , cols*30/100, rows*70/100, cols*70/100 );
             mvcenter(     rows*30/100, "| MENU |");
             foo = 1;
@@ -1495,7 +1606,6 @@ int main( int argc, char *argv[])
             else if      ( ch == 's' ) {  nsystem( " sh " );  }
             else if      ( ch == 'x' ) {  nsystem( " xterm " );  }
             else if      ( ch == 'c' ) {  nsystem( " naclock " );  }
-            else if      ( ch == 'r' ) {  enable_waiting_for_enter();  nrunwith(  " less ",  nexp_user_fileselection    );   }
             else if      ( ch == 'U' ) 
               nrunwith( "  export DISPLAY=:0 ; xunidoc " , nexp_user_fileselection );
             else if ( ch == '1' )
