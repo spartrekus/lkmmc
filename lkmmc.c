@@ -1489,9 +1489,10 @@ int main( int argc, char *argv[])
             }    
 
             else if ( strcmp( string, "REBOOT" ) == 0 )  
-            {
                 nsystem( " reboot " ); 
-            }    
+
+            else if ( strcmp( string, "make" ) == 0 )  
+                nsystem( " make " ); 
 
             else if ( strcmp( string, "rc" ) == 0 )  
             {
