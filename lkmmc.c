@@ -1,4 +1,4 @@
-//////////////////////////////////////////
+/////////////////////////////////////////
 //////////////////////////////////////////
 // lkmm  (improved2)
 //////////////////////////////////////////
@@ -49,11 +49,11 @@
 int  rows, cols ; 
 int  pansel = 1;
 int  show_path_title = 1; 
-char pathclipboard[PATH_MAX];
+char pathclipboard[3][PATH_MAX];
 char clipboard_filter[PATH_MAX];
-int  scrollyclipboard = 0;
-int  selclipboard = 0;
-char file_filter[5][PATH_MAX];
+char file_filter[3][PATH_MAX];
+int  scrollyclipboard[3] ;
+int  selclipboard[3] ;
 
 
 #define KNRM  "\x1B[0m"
@@ -142,6 +142,7 @@ void clear_screen()
     clrscr();
     home();
 }
+
 
 
 int fexist(char *a_option)
@@ -455,33 +456,36 @@ void readfilesp( char *filesource, int linestart , int lineend )
 {
   FILE *source; 
   int ch ;  int linecount = 1;
-  source = fopen( filesource , "r");
-  if ( source == NULL ) { printf( "File not found.\n" ); } else  
+  if ( fexist( filesource ) == 1 )
   {
-   clear_screen();
-   for ( ch = 0 ;  ch <= cols-1 ; ch++) printf( "%c", '-');
-   printf( "FILE: %s\n", filesource );
-   for ( ch = 0 ;  ch <= cols-1 ; ch++) printf( "%c", '-');
-   printf( "%d: ", linecount );
-   while( ( ch = fgetc(source) ) != EOF )
-   {
-       if ( linecount <= lineend ) 
-       {
-         if ( ch == '\n' ) 
+    source = fopen( filesource , "r");
+    //if ( source == NULL ) { printf( "File not found.\n" ); } else  
+    {
+     clear_screen();
+     for ( ch = 0 ;  ch <= cols-1 ; ch++) printf( "%c", '-');
+     printf( "FILE: %s\n", filesource );
+     for ( ch = 0 ;  ch <= cols-1 ; ch++) printf( "%c", '-');
+     printf( "%d: ", linecount );
+     while( ( ch = fgetc(source) ) != EOF )
+     {
+         if ( linecount <= lineend ) 
          {
-            linecount++; 
-            printf( "\n%d: ", linecount );
+           if ( ch == '\n' ) 
+           {
+              linecount++; 
+              printf( "\n%d: ", linecount );
+           }
+           else
+              printf( "%c", ch );
          }
-         else
-            printf( "%c", ch );
-       }
+     }
+     fclose(source);
+     }
+  
+     printf( "\33[2K" ); 
+     printf( "\r" );
+     for ( ch = 0 ;  ch <= cols-1 ; ch++) printf( "%c", '-');
    }
-   fclose(source);
-   }
-
-   printf( "\33[2K" ); 
-   printf( "\r" );
-   for ( ch = 0 ;  ch <= cols-1 ; ch++) printf( "%c", '-');
 }
    
 
@@ -600,11 +604,13 @@ char *fextension(char *str)
 
 
 
+
+
+
+
 ////////////////////////////////////////
 int main( int argc, char *argv[])
 {
-
-
     ////////////////////////////////////////////////////////
     if ( argc == 2)
     if ( strcmp( argv[1] , "-yellow" ) ==  0 ) 
@@ -699,6 +705,7 @@ int main( int argc, char *argv[])
 
 
 
+
     ////////////////////////////////////////////////////////
     nexp_user_sel[1] = 1;
     nexp_user_sel[2] = 1;
@@ -706,10 +713,16 @@ int main( int argc, char *argv[])
     nexp_user_scrolly[2] = 0;
     strncpy( pathpan[ 1 ] ,  getcwd( cwd, PATH_MAX ), PATH_MAX );
     strncpy( pathpan[ 2 ] ,  getcwd( cwd, PATH_MAX ), PATH_MAX );
-    strncpy( pathclipboard , getcwd( cwd, PATH_MAX ), PATH_MAX );
+    strncpy( pathclipboard[1] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+    strncpy( pathclipboard[2] , getcwd( cwd, PATH_MAX ), PATH_MAX );
     strncpy( file_filter[1] ,   "" , PATH_MAX );
     strncpy( file_filter[2] ,   "" , PATH_MAX );
     strncpy( clipboard_filter , "" , PATH_MAX );
+
+
+
+
+
 
     ////////////////////////////////////////////////////////
     if ( argc == 2)
@@ -732,6 +745,25 @@ int main( int argc, char *argv[])
     char userstrsel[PATH_MAX];
     char lkmmc_message[PATH_MAX];
     strncpy( lkmmc_message, "" , PATH_MAX );
+
+
+    ////////////////////////////////////////////////////////
+    if ( argc == 3)
+    if ( fexist( argv[1] ) == 2 ) 
+    if ( fexist( argv[2] ) == 2 ) 
+    {
+          viewpan[ 1 ] = 1;
+          viewpan[ 2 ] = 1;
+          chdir( argv[ 1 ] );
+          strncpy( pathpan[ 1 ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+          chdir( argv[ 2 ] );
+          strncpy( pathpan[ 2 ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+          chdir( argv[ 1 ] );
+    }
+
+    printf( "|*1 |[%s]\n", pathpan[ 1 ] );
+    printf( "| 2 |[%s]\n", pathpan[ 2 ] );
+
 
     while ( gameover == 0 ) 
     {
@@ -803,6 +835,9 @@ int main( int argc, char *argv[])
                strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
            }
        }
+
+
+
        //////////////////////
        else if ( ch == 'O' ) 
        {
@@ -821,6 +856,7 @@ int main( int argc, char *argv[])
 
 
 
+
      // run it
      else if (  ( ch == 18 )    || ( ch == 5 ))   //c-r 18
      {
@@ -831,7 +867,6 @@ int main( int argc, char *argv[])
          printf( "Open menu...\n" );
          printhline( );
           
-
            printf("%s", KCYN);
            gfxrect(   rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
            gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
@@ -846,24 +881,20 @@ int main( int argc, char *argv[])
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " v: vim ");
            printf("%s", KWHT);
-
          ch = getchar();
          enable_waiting_for_enter();
          printf( "\n" );
          printf( "Term!\n" );
          printf( "\n" );
-
          printf( "Key %d\n", ch );
-
-         if ( ch == 'm' )      { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
+         if ( ch == 'm') { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
          else if ( ch == 'e' )  nrunwith( " ed  ", userstrsel );
          else if ( ch == 't' )  nrunwith( " tless  ", userstrsel );
          else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
          else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
-         else if ( ch == 'v' )  nrunwith( " vim  ", userstrsel );
          else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
          ch = 0;
-     }
+       }
 
        else if ( ch == 15 )   // working ctrl + o
        {
@@ -964,9 +995,9 @@ int main( int argc, char *argv[])
        {
             // save 
             chdir( pathpan[ pansel ] );
-            strncpy( pathclipboard , getcwd( string, PATH_MAX ), PATH_MAX );
-            selclipboard =      nexp_user_sel[pansel];
-            scrollyclipboard =  nexp_user_scrolly[pansel];
+            strncpy( pathclipboard[pansel] , getcwd( string, PATH_MAX ), PATH_MAX );
+            selclipboard[pansel] =      nexp_user_sel[pansel];
+            scrollyclipboard[pansel] =  nexp_user_scrolly[pansel];
             strncpy( clipboard_filter , file_filter[pansel] , PATH_MAX );
 
             // go 
@@ -1183,23 +1214,24 @@ int main( int argc, char *argv[])
 
 
 
-        else if ( ( ch == '"')  || ( ch == 'm')       )
+        else if ( ch == 'm')   
         {
             chdir( pathpan[ pansel ] );
-            strncpy( pathclipboard , getcwd( string, PATH_MAX ), PATH_MAX );
-            selclipboard = nexp_user_sel[pansel];
-            scrollyclipboard = nexp_user_scrolly[pansel];
+            strncpy( pathclipboard[pansel] , getcwd( string, PATH_MAX ), PATH_MAX );
+            selclipboard[pansel] = nexp_user_sel[pansel];
+            scrollyclipboard[pansel] = nexp_user_scrolly[pansel];
         }
+
         else if (  ch == 'b' ) 
         {
             home(); printf( "|BACK|");
             chdir( pathpan[ pansel ] );
-            chdir( pathclipboard );
+            chdir( pathclipboard[pansel] );
             strncpy( pathpan[ pansel ] , getcwd( string, PATH_MAX ), PATH_MAX );
             strncpy( file_filter[pansel], clipboard_filter , PATH_MAX );
-            nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; 
-            nexp_user_sel[pansel] = selclipboard ;
-            nexp_user_scrolly[pansel] = scrollyclipboard ;
+            nexp_user_sel[pansel] = 1;   nexp_user_scrolly[pansel] = 0; 
+            nexp_user_sel[pansel] =      selclipboard[pansel] ;
+            nexp_user_scrolly[pansel] =  scrollyclipboard[pansel] ;
         }
 
 
@@ -1248,6 +1280,9 @@ int main( int argc, char *argv[])
              else if ( strcmp( fextension( nexp_user_fileselection ) , "ws1" ) == 0 )
                nrunwith( " freelotus123 " , nexp_user_fileselection );
 
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "csv" ) == 0 )
+               nrunwith( " plotcsv " , nexp_user_fileselection );
+
              else 
                nrunwith( " rox " , nexp_user_fileselection );
        }
@@ -1255,12 +1290,14 @@ int main( int argc, char *argv[])
 
        else if ( ch == 'p') 
        {
-          if ( fexist(   nexp_user_fileselection ) == 1 )
+          //if ( fexist(   nexp_user_fileselection ) == 1 )
           {
             readfilesp( nexp_user_fileselection , 0 , rows-4 );
             getchar();
           }
        }
+
+
 
        else if ( ( ch == 'o') && ( pansel == 1 )   )
        {
@@ -1346,10 +1383,12 @@ int main( int argc, char *argv[])
             printf("\n" );
             printf("got: \"%s\"\n", string );
             if ( strcmp( string , "" ) != 0 ) 
+            {
                nrunwith( string , nexp_user_fileselection  ) ; 
+            }
         }
-        else if ( ch == '&' )     nsystem( " sh  ");
-        else if ( ch == '$' ) 
+
+        else if ( ch == '&' ) 
         {
             strninput( " Run SH Command ", "" );
             strncpy( string, userstr , PATH_MAX );
@@ -1359,9 +1398,30 @@ int main( int argc, char *argv[])
             if ( strcmp( string , "" ) != 0 ) 
             {
                printf("run: \"%s\"\n", string );
+               enable_waiting_for_enter();
                nsystem( string );
+               disable_waiting_for_enter();
                getchar();
             }
+            ch = 0; 
+        }
+
+        else if ( ch == '$' )   // S like silent
+        {
+            strninput( " Run SH Command ", "" );
+            strncpy( string, userstr , PATH_MAX );
+            printf("\n" );
+            printf("\n" );
+            printf("got: \"%s\"\n", string );
+            if ( strcmp( string , "" ) != 0 ) 
+            {
+               printf("run: \"%s\"\n", string );
+               enable_waiting_for_enter();
+               nsystem( string );
+               disable_waiting_for_enter();
+               //getchar();
+            }
+            ch = 0; 
         }
 
 
@@ -1433,6 +1493,10 @@ int main( int argc, char *argv[])
             strncpy( string, userstr , PATH_MAX );
             printf("got: \"%s\"\n", string );
 
+
+            printf("User cmd: \"%s\"\n", string );
+            enable_waiting_for_enter();
+
             if ( strcmp( string, "size" ) == 0 )  
             {
               printf("Screen\n" );
@@ -1445,9 +1509,9 @@ int main( int argc, char *argv[])
 
             else if ( strcmp( string, "mpall" ) == 0 )  
                 nsystem(  "  export DISPLAY=:0 ; mplayer * " );
-            else if ( strcmp( string, "mploop" ) == 0 )  
-                nrunwith(  "  export DISPLAY=:0 ; mplayer -loop 0 ",  nexp_user_fileselection    );
 
+            else if ( strcmp( string, "xrox" ) == 0 )  
+                nsystem(  "  export DISPLAY=:0 ; rox " );
             else if ( strcmp( string, "xfeh" ) == 0 )  
                 nrunwith(  "  export DISPLAY=:0 ; feh -FZ  ",  nexp_user_fileselection    );
             else if ( strcmp( string, "xmupdf" ) == 0 )  
@@ -1459,19 +1523,7 @@ int main( int argc, char *argv[])
             {
               nsystem( " cal "   );
               printf( "<Press Key>\n" );
-              getchar(); 
-            }    
-
-            else if ( strcmp( string, "list" ) == 0 )  
-            {
-              printf("Screen\n" );
-              printf("Env HOME:  %s\n", getenv( "HOME" ));
-              printf("Env PATH:  %s\n", getcwd( string, PATH_MAX ) );
-              printf("Env TERM ROW:  %d\n", w.ws_row );
-              printf("Env TERM COL:  %d\n", w.ws_col );
-              nsystem( " ls -1 > list.lst "   );
-              nls( ); 
-              printf( "<Press Key>\n" );
+              disable_waiting_for_enter(); 
               getchar(); 
             }    
 
@@ -1488,15 +1540,22 @@ int main( int argc, char *argv[])
               getchar();
             }    
 
+            else if ( strcmp( string, "reboot" ) == 0 )  
+                nsystem( " reboot " ); 
             else if ( strcmp( string, "REBOOT" ) == 0 )  
                 nsystem( " reboot " ); 
-
             else if ( strcmp( string, "make" ) == 0 )  
                 nsystem( " make " ); 
 
             else if ( strcmp( string, "rc" ) == 0 )  
             {
-                nsystem( " less /etc/rc.conf " ); 
+               enable_waiting_for_enter();
+               if ( MYOS == 1 ) 
+                  readfilesp( "/etc/hostname" , 0 , rows-4 );
+               else 
+                  readfilesp( "/etc/rc.conf" , 0 , rows-4 );
+               disable_waiting_for_enter();
+               getchar();
             }    
 
             else if ( strcmp( string, "key" ) == 0 )  
@@ -1543,6 +1602,8 @@ int main( int argc, char *argv[])
        else if ( ch == 'i' )
        {  if ( pansel == 1 )   pansel = 2 ; else pansel = 1; }
 
+
+
        else if ( ch == '?' )
        {
            home(); 
@@ -1558,6 +1619,7 @@ int main( int argc, char *argv[])
            gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
            mvcenter(  rows*10/100+1, "| HELP LKMMC |");
            foo = 1;
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  v.0.12 ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  q: Quit");
