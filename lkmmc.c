@@ -1,6 +1,6 @@
 /////////////////////////////////////////
 //////////////////////////////////////////
-// lkmm  (improved2)
+// lkmmc (improved2, with colors)
 //////////////////////////////////////////
 //////////////////////////////////////////
 #include <stdio.h>
@@ -749,8 +749,8 @@ int main( int argc, char *argv[])
 
     ////////////////////////////////////////////////////////
     if ( argc == 3)
-    if ( fexist( argv[1] ) == 2 ) 
-    if ( fexist( argv[2] ) == 2 ) 
+    //if ( fexist( argv[1] ) == 2 ) 
+    //if ( fexist( argv[2] ) == 2 ) 
     {
           viewpan[ 1 ] = 1;
           viewpan[ 2 ] = 1;
@@ -761,9 +761,11 @@ int main( int argc, char *argv[])
           chdir( argv[ 1 ] );
     }
 
+
+    printf( "|LKMMC|\n" );
     printf( "|*1 |[%s]\n", pathpan[ 1 ] );
     printf( "| 2 |[%s]\n", pathpan[ 2 ] );
-
+    printf( "Reading directories...\n" );
 
     while ( gameover == 0 ) 
     {
@@ -1388,23 +1390,6 @@ int main( int argc, char *argv[])
             }
         }
 
-        else if ( ch == '&' ) 
-        {
-            strninput( " Run SH Command ", "" );
-            strncpy( string, userstr , PATH_MAX );
-            printf("\n" );
-            printf("\n" );
-            printf("got: \"%s\"\n", string );
-            if ( strcmp( string , "" ) != 0 ) 
-            {
-               printf("run: \"%s\"\n", string );
-               enable_waiting_for_enter();
-               nsystem( string );
-               disable_waiting_for_enter();
-               getchar();
-            }
-            ch = 0; 
-        }
 
         else if ( ch == '$' )   // S like silent
         {
@@ -1424,6 +1409,24 @@ int main( int argc, char *argv[])
             ch = 0; 
         }
 
+        else if ( ch == '&' ) 
+        {
+            strninput( " Run SH Command ", "" );
+            strncpy( string, userstr , PATH_MAX );
+            printf("\n" );
+            printf("\n" );
+            printf("got: \"%s\"\n", string );
+            if ( strcmp( string , "" ) != 0 ) 
+            {
+               printf("run: \"%s\"\n", string );
+               enable_waiting_for_enter();
+               nsystem( string );
+               disable_waiting_for_enter();
+               printf("<Key Press>\n" );
+               getchar();
+            }
+            ch = 0; 
+        }
 
 
        else if ( ch == ';' ) 
@@ -1619,15 +1622,14 @@ int main( int argc, char *argv[])
            gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
            mvcenter(  rows*10/100+1, "| HELP LKMMC |");
            foo = 1;
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  v.0.12 ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  v.0.14.1 ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  q: Quit");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  r: view file");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  t: lkview file");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  r,t,v: view (less), lkview, vim file");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  !: run with (system command)");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  :: internal command");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  $: system command");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , "  :: internal command");
            printf("%s", KWHT);
 
             //////////////////
@@ -1651,24 +1653,23 @@ int main( int argc, char *argv[])
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: xterm");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "u: unidoc");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "s: sunidoc");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "r: tless ");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "c: naclock");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "l: lock console");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "y: Quit");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "n: Abort");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "t: make mrk/bmr");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "m: make with texmaker");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "c: nclock");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "Q: Quit LKMMC");
             ansigotoyx(  rows*70/100 , cols*70/100 );
             ch = getchar();
             ansigotoyx( rows-1, 0 );
-            if           ( ch == 'y' ) gameover = 1;
-            else if      ( ch == 'Y' ) gameover = 1;
+            if           ( ch == 'Q' ) gameover = 1;
+            else if      ( ch == 'q' ) gameover = 1;
             else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
             else if      ( ch == 'u' ) nrunwith( "  unidoc " , nexp_user_fileselection );
-            else if      ( ch == 'l' ) {  nsystem( " lfclock " );  }
-            else if      ( ch == 'L' ) {  nsystem( " cacafire " );  }
 
-            else if      ( ch == 's' ) {  nsystem( " sh " );  }
+            else if      ( ch == 't' ) nrunwith( "  makebmr  " , nexp_user_fileselection );
+            else if      ( ch == 'm' ) nrunwith( "  texmaker " , nexp_user_fileselection );
+
             else if      ( ch == 'x' ) {  nsystem( " xterm " );  }
-            else if      ( ch == 'c' ) {  nsystem( " naclock " );  }
+            else if      ( ch == 'c' ) {  nsystem( " nclock " );  }
             else if      ( ch == 'U' ) 
               nrunwith( "  export DISPLAY=:0 ; xunidoc " , nexp_user_fileselection );
             else if ( ch == '1' )
