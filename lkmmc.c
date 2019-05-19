@@ -1237,13 +1237,23 @@ int main( int argc, char *argv[])
         }
 
 
+
+
+
        else if ( ch == 10 ) 
        {
              if      ( strcmp( fextension( nexp_user_fileselection ) , "mp4" ) == 0 )
                nrunwith( " mplayer " , nexp_user_fileselection );
 
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "png" ) == 0 )
+               nrunwith( " feh  " , nexp_user_fileselection );
+
              else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "wad" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; prboom-plus -iwad " , nexp_user_fileselection );
+
              else if ( strcmp( fextension( nexp_user_fileselection ) , "PDF" ) == 0 )
                nrunwith( " mupdf " , nexp_user_fileselection );
 
@@ -1257,8 +1267,6 @@ int main( int argc, char *argv[])
                nrunwith( " mplayer " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
-               nrunwith( " feh  " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "png" ) == 0 )
                nrunwith( " feh  " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "gif" ) == 0 )
                nrunwith( " feh  " , nexp_user_fileselection );
