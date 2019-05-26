@@ -857,9 +857,18 @@ int main( int argc, char *argv[])
        }
 
 
+        else if ( ch == 'm')   
+        {
+            chdir( pathpan[ pansel ] );
+            strncpy( pathclipboard[pansel] , getcwd( string, PATH_MAX ), PATH_MAX );
+            selclipboard[pansel] = nexp_user_sel[pansel];
+            scrollyclipboard[pansel] = nexp_user_scrolly[pansel];
+        }
 
 
      // run it
+     // 18 is 
+     // 5 is 
      else if (  ( ch == 18 )    || ( ch == 5 ))   //c-r 18
      {
          strncpy( userstrsel, nexp_user_fileselection , PATH_MAX );
@@ -868,8 +877,8 @@ int main( int argc, char *argv[])
          ansigotoyx( rows , 0 );
          printf( "Open menu...\n" );
          printhline( );
-          
-           printf("%s", KCYN);
+           // nice menu 
+           printf("%s", KYEL);
            gfxrect(   rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
            gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
            mvcenter(  rows*10/100+1, "| MENU LKMMC |");
@@ -881,6 +890,8 @@ int main( int argc, char *argv[])
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " p: xmupdf ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: tless ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " u: unzip ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: untar ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " v: vim ");
            printf("%s", KWHT);
          ch = getchar();
@@ -895,8 +906,12 @@ int main( int argc, char *argv[])
          else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
          else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
          else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
+         else if ( ch == 'u' )  nrunwith( " unzip  ", userstrsel );
+         else if ( ch == 't' )  nrunwith( " tar xf  ", userstrsel );
          ch = 0;
        }
+
+
 
        else if ( ch == 15 )   // working ctrl + o
        {
@@ -1216,13 +1231,6 @@ int main( int argc, char *argv[])
 
 
 
-        else if ( ch == 'm')   
-        {
-            chdir( pathpan[ pansel ] );
-            strncpy( pathclipboard[pansel] , getcwd( string, PATH_MAX ), PATH_MAX );
-            selclipboard[pansel] = nexp_user_sel[pansel];
-            scrollyclipboard[pansel] = nexp_user_scrolly[pansel];
-        }
 
         else if (  ch == 'b' ) 
         {
@@ -1268,16 +1276,15 @@ int main( int argc, char *argv[])
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
                nrunwith( " feh  " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "gif" ) == 0 )
-               nrunwith( " feh  " , nexp_user_fileselection );
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "gif" ) == 0 )
+             //  nrunwith( " feh  " , nexp_user_fileselection );
 
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "doc" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
-
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "fig" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  xfig " , nexp_user_fileselection );
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "doc" ) == 0 )
+             //  nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
+             //  nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "fig" ) == 0 )
+             //nrunwith( "   export DISPLAY=:0 ; screen -d -m  xfig " , nexp_user_fileselection );
 
 
              //else if ( strcmp( fextension( nexp_user_fileselection ) , "mrk" ) == 0 )
@@ -1518,17 +1525,8 @@ int main( int argc, char *argv[])
               getchar();
             }    
 
-            else if ( strcmp( string, "mpall" ) == 0 )  
-                nsystem(  "  export DISPLAY=:0 ; mplayer * " );
-
-            else if ( strcmp( string, "xrox" ) == 0 )  
-                nsystem(  "  export DISPLAY=:0 ; rox " );
-            else if ( strcmp( string, "xfeh" ) == 0 )  
-                nrunwith(  "  export DISPLAY=:0 ; feh -FZ  ",  nexp_user_fileselection    );
-            else if ( strcmp( string, "xmupdf" ) == 0 )  
-                nrunwith(  "  export DISPLAY=:0 ; mupdf ",  nexp_user_fileselection    );
-            else if ( strcmp( string, "xmplayer" ) == 0 )  
-                nrunwith(  "  export DISPLAY=:0 ; mplayer ",  nexp_user_fileselection    );
+            else if ( strcmp( string, "email" ) == 0 )  
+                nsystem(  "  export DISPLAY=:0 ; claws-mail " );
 
             else if ( strcmp( string, "cal" ) == 0 )  
             {
@@ -1664,12 +1662,21 @@ int main( int argc, char *argv[])
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "t: make mrk/bmr");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "m: make with texmaker");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "c: nclock");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "o: commit SVN");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "Q: Quit LKMMC");
             ansigotoyx(  rows*70/100 , cols*70/100 );
             ch = getchar();
             ansigotoyx( rows-1, 0 );
             if           ( ch == 'Q' ) gameover = 1;
-            else if      ( ch == 'q' ) gameover = 1;
+            else if  ( ch == 'q' ) gameover = 1;
+
+            else if ( ( ch == 'o' ) || ( ch == 'O' ) )
+            {
+               printf("- SVN - \n");
+               nsystem( " svn commit -m v20  ;  svn add * --force  " );
+               nsystem( " svn commit -m v20  ;  svn add * --force  " );
+            }
+
             else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
             else if      ( ch == 'u' ) nrunwith( "  unidoc " , nexp_user_fileselection );
 
