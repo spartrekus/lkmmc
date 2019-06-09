@@ -1,8 +1,10 @@
+
 /////////////////////////////////////////
 //////////////////////////////////////////
-// lkmmc (improved2, with colors)
+// lkmmc (original lk from unix pdp, improved2, with colors)
 //////////////////////////////////////////
 //////////////////////////////////////////
+
 #include <stdio.h>
 #define PATH_MAX 2500
 #if defined(__linux__) //linux
@@ -807,8 +809,30 @@ int main( int argc, char *argv[])
 
        chdir( pathpan[ pansel ] );
 
-       if      (ch ==  'Q')      gameover = 1;
-       else if (ch ==  'q')      gameover = 1;
+      if      (ch ==  'Q')      gameover = 1;
+      else if (ch ==  'q')      gameover = 1;
+
+      else if  (ch == 'y') 
+      {
+           // copy a line to clipboard
+           strncpy( string , getcwd( cwd, PATH_MAX ), PATH_MAX );
+           chdir( getenv( "HOME" ) );
+           FILE *fptt; 
+
+           fptt = fopen( ".clipboard", "wb+" );
+            fputs( nexp_user_fileselection , fptt );
+            fputs( "\n" , fptt );
+           fclose( fptt );
+
+           fptt = fopen( ".lkmmcrc", "wb+" );
+            fputs( string , fptt );
+            fputs( "\n" , fptt );
+           fclose( fptt );
+
+           printf( "Copying to clipboard the selection.\n" );
+           chdir( string );
+      }
+
 
        else if ( ch == 'r' ) 
        {  enable_waiting_for_enter();  
@@ -1254,7 +1278,17 @@ int main( int argc, char *argv[])
                nrunwith( " mplayer " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "png" ) == 0 )
-               nrunwith( " feh  " , nexp_user_fileselection );
+               nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "JPG" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ;    feh -FZ  " , nexp_user_fileselection );
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m  gnumeric " , nexp_user_fileselection );
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "xlsx" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m  gnumeric " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
@@ -1649,6 +1683,9 @@ int main( int argc, char *argv[])
        }
 
 
+
+
+
        else if  ( ( ch == 'A') || ( ch == 'a') || ( ch == 'q' ) )
        {
             // small size menu
@@ -1659,6 +1696,7 @@ int main( int argc, char *argv[])
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: xterm");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "u: unidoc");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "s: sunidoc");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: xunidoc");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "t: make mrk/bmr");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "m: make with texmaker");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "c: nclock");
@@ -1670,6 +1708,12 @@ int main( int argc, char *argv[])
             if           ( ch == 'Q' ) gameover = 1;
             else if  ( ch == 'q' ) gameover = 1;
 
+            else if      ( ch == 'u' ) nrunwith( "  unidoc " , nexp_user_fileselection );
+            else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
+            else if      ( ch == 'x' ) nrunwith( "  xunidoc " , nexp_user_fileselection );
+
+            else if      ( ch == 'c' ) {  nsystem( " nclock --lock " );  }
+
             else if ( ( ch == 'o' ) || ( ch == 'O' ) )
             {
                printf("- SVN - \n");
@@ -1677,14 +1721,11 @@ int main( int argc, char *argv[])
                nsystem( " svn commit -m v20  ;  svn add * --force  " );
             }
 
-            else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
-            else if      ( ch == 'u' ) nrunwith( "  unidoc " , nexp_user_fileselection );
 
             else if      ( ch == 't' ) nrunwith( "  makebmr  " , nexp_user_fileselection );
             else if      ( ch == 'm' ) nrunwith( "  texmaker " , nexp_user_fileselection );
 
             else if      ( ch == 'x' ) {  nsystem( " xterm " );  }
-            else if      ( ch == 'c' ) {  nsystem( " nclock " );  }
             else if      ( ch == 'U' ) 
               nrunwith( "  export DISPLAY=:0 ; xunidoc " , nexp_user_fileselection );
             else if ( ch == '1' )
