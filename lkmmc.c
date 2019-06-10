@@ -1279,6 +1279,7 @@ int main( int argc, char *argv[])
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "png" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
+
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
 
@@ -1310,6 +1311,22 @@ int main( int argc, char *argv[])
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
                nrunwith( " feh  " , nexp_user_fileselection );
+
+
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "zip" ) == 0 )
+             {
+                enable_waiting_for_enter();
+                clear_screen();
+                strncpy( string , "  " , PATH_MAX );
+                strncat( string , " unzip -l " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                strncat( string ,  nexp_user_fileselection , PATH_MAX - strlen( string ) -1 );
+                strncat( string , "\" | less " , PATH_MAX - strlen( string ) -1 );
+                nsystem( string );  
+                disable_waiting_for_enter();
+             }
+
              //else if ( strcmp( fextension( nexp_user_fileselection ) , "gif" ) == 0 )
              //  nrunwith( " feh  " , nexp_user_fileselection );
 
@@ -1337,6 +1354,7 @@ int main( int argc, char *argv[])
              else 
                nrunwith( " rox " , nexp_user_fileselection );
        }
+
 
 
        else if ( ch == 'p') 
