@@ -57,6 +57,8 @@ char file_filter[3][PATH_MAX];
 int  scrollyclipboard[3] ;
 int  selclipboard[3] ;
 
+char clipboard[PATH_MAX];
+
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -664,6 +666,7 @@ int main( int argc, char *argv[])
     char pathpan[5][PATH_MAX];
 
 
+    strncpy(  clipboard, "", PATH_MAX );
 
      ////////////////////////////////////////////////////////
      if ( argc == 2)
@@ -817,8 +820,11 @@ int main( int argc, char *argv[])
            // copy a line to clipboard
            strncpy( string , getcwd( cwd, PATH_MAX ), PATH_MAX );
            chdir( getenv( "HOME" ) );
-           FILE *fptt; 
 
+           strncpy(  clipboard, "", PATH_MAX );
+           strncpy(  clipboard, nexp_user_fileselection , PATH_MAX );
+
+           FILE *fptt; 
            fptt = fopen( ".clipboard", "wb+" );
             fputs( nexp_user_fileselection , fptt );
             fputs( "\n" , fptt );
@@ -914,7 +920,6 @@ int main( int argc, char *argv[])
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " p: xmupdf ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: tless ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " u: unzip ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: untar ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " v: vim ");
            printf("%s", KWHT);
@@ -930,7 +935,6 @@ int main( int argc, char *argv[])
          else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
          else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
          else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
-         else if ( ch == 'u' )  nrunwith( " unzip  ", userstrsel );
          else if ( ch == 't' )  nrunwith( " tar xf  ", userstrsel );
          ch = 0;
        }
@@ -1618,6 +1622,23 @@ int main( int argc, char *argv[])
                disable_waiting_for_enter();
                getchar();
             }    
+
+            else if ( strcmp( string, "vim" ) == 0 )  
+            {
+                enable_waiting_for_enter();
+                clear_screen();
+                strncpy( string , "  " , PATH_MAX );
+                strncat( string , " vim -p " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                strncat( string ,  clipboard , PATH_MAX - strlen( string ) -1 );
+                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                strncat( string ,  nexp_user_fileselection , PATH_MAX - strlen( string ) -1 );
+                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                nsystem( string );  
+                disable_waiting_for_enter();
+            }
 
             else if ( strcmp( string, "key" ) == 0 )  
             {
