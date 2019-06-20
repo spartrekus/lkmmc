@@ -870,6 +870,11 @@ int main( int argc, char *argv[])
 
 
 
+
+
+
+       //////////////////////
+       //////////////////////
        //////////////////////
        else if ( ch == 'O' ) 
        {
@@ -885,6 +890,9 @@ int main( int argc, char *argv[])
                strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
            }
        }
+
+
+
 
 
         else if ( ch == 'm')   
