@@ -1294,18 +1294,20 @@ int main( int argc, char *argv[])
              else if ( strcmp( fextension( nexp_user_fileselection ) , "JPG" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ;    feh -FZ  " , nexp_user_fileselection );
 
+             /// office stuffs
              else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; screen -d -m  gnumeric " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "xlsx" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; screen -d -m  gnumeric " , nexp_user_fileselection );
-
-             else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
-
              else if ( strcmp( fextension( nexp_user_fileselection ) , "doc" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; screen -d -m  libreoffice " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "docx" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; screen -d -m  libreoffice " , nexp_user_fileselection );
+
+             /// office stuffs
+             else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
+               nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
+
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "wad" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ; prboom-plus -iwad " , nexp_user_fileselection );
@@ -1362,7 +1364,10 @@ int main( int argc, char *argv[])
                nrunwith( " freelotus123 " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "csv" ) == 0 )
-               nrunwith( " plotcsv " , nexp_user_fileselection );
+               nrunwith( " freelotus123 " , nexp_user_fileselection );
+
+             //else if ( strcmp( fextension( nexp_user_fileselection ) , "csv" ) == 0 )
+             //  nrunwith( " plotcsv " , nexp_user_fileselection );
 
              else 
                nrunwith( " rox " , nexp_user_fileselection );
