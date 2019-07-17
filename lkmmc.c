@@ -56,6 +56,7 @@ char clipboard_filter[PATH_MAX];
 char file_filter[3][PATH_MAX];
 int  scrollyclipboard[3] ;
 int  selclipboard[3] ;
+char fileclip_selection[5][PATH_MAX];
 
 char clipboard[PATH_MAX];
 
@@ -615,11 +616,21 @@ char *fextension(char *str)
 ////////////////////////////////////////
 int main( int argc, char *argv[])
 {
+    char foostrpwd[PATH_MAX];
+
     ////////////////////////////////////////////////////////
     if ( argc == 2)
     if ( strcmp( argv[1] , "-yellow" ) ==  0 ) 
     {
        printf("%syellow\n", KYEL);
+       return 0;
+    }
+
+    ////////////////////////////////////////////////////////
+    if ( argc == 2)
+    if ( strcmp( argv[1] , "-red" ) ==  0 ) 
+    {
+       printf("%sred\n", KRED);
        return 0;
     }
 
@@ -631,6 +642,13 @@ int main( int argc, char *argv[])
        return 0;
     }
 
+    ////////////////////////////////////////////////////////
+    if ( argc == 2)
+    if ( strcmp( argv[1] , "-path" ) ==  0 ) 
+    {
+       printf("Path: %s\n", getcwd( foostrpwd, PATH_MAX ) );
+       return 0;
+    }
 
 
      ////////////////////////////////////////////////////////
@@ -665,7 +683,8 @@ int main( int argc, char *argv[])
     char cwd[PATH_MAX];
     char pathpan[5][PATH_MAX];
 
-
+    strncpy(  fileclip_selection[ 1 ], "", PATH_MAX );
+    strncpy(  fileclip_selection[ 2 ], "", PATH_MAX );
     strncpy(  clipboard, "", PATH_MAX );
 
      ////////////////////////////////////////////////////////
@@ -815,6 +834,7 @@ int main( int argc, char *argv[])
       if      (ch ==  'Q')      gameover = 1;
       else if (ch ==  'q')      gameover = 1;
 
+
       else if  (ch == 'y') 
       {
            // copy a line to clipboard
@@ -831,7 +851,20 @@ int main( int argc, char *argv[])
            fclose( fptt );
 
            fptt = fopen( ".lkmmcrc", "wb+" );
+            fputs( "TRG: " , fptt );
             fputs( string , fptt );
+            fputs( "/" , fptt );
+            fputs( nexp_user_fileselection , fptt );
+            fputs( "\n" , fptt );
+            fputs( "PATH: " , fptt );
+            fputs( string , fptt );
+            fputs( "\n" , fptt );
+            fputs( "FILE: " , fptt );
+            fputs( nexp_user_fileselection , fptt );
+            fputs( "\n" , fptt );
+            fputs( string , fptt );
+            fputs( "/" , fptt );
+            fputs( nexp_user_fileselection , fptt );
             fputs( "\n" , fptt );
            fclose( fptt );
 
@@ -904,50 +937,6 @@ int main( int argc, char *argv[])
         }
 
 
-     // run it
-     // 18 is 
-     // 5 is 
-     else if (  ( ch == 18 )    || ( ch == 5 ))   //c-r 18
-     {
-         strncpy( userstrsel, nexp_user_fileselection , PATH_MAX );
-         ansigotoyx( rows-1 , 0 );
-         printhline( );
-         ansigotoyx( rows , 0 );
-         printf( "Open menu...\n" );
-         printhline( );
-           // nice menu 
-           printf("%s", KYEL);
-           gfxrect(   rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
-           gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
-           mvcenter(  rows*10/100+1, "| MENU LKMMC |");
-           foo = 1;
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " e: ed ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " m: xmplayer ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " p: xmupdf ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: tless ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: untar ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " v: vim ");
-           printf("%s", KWHT);
-         ch = getchar();
-         enable_waiting_for_enter();
-         printf( "\n" );
-         printf( "Term!\n" );
-         printf( "\n" );
-         printf( "Key %d\n", ch );
-         if ( ch == 'm') { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
-         else if ( ch == 'e' )  nrunwith( " ed  ", userstrsel );
-         else if ( ch == 't' )  nrunwith( " tless  ", userstrsel );
-         else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
-         else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
-         else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
-         else if ( ch == 't' )  nrunwith( " tar xf  ", userstrsel );
-         ch = 0;
-       }
-
-
 
        else if ( ch == 15 )   // working ctrl + o
        {
@@ -968,8 +957,8 @@ int main( int argc, char *argv[])
 
 
 
-      else if ( ch == 'z' )   {  enable_waiting_for_enter();  nrunwith(  " tless   ",  nexp_user_fileselection    );   }
-
+      else if ( ch == 'z' )  
+      {  enable_waiting_for_enter();  nrunwith(  " tless   ",  nexp_user_fileselection    );   }
 
 
       else if ( ch == 27 )  
@@ -1023,7 +1012,7 @@ int main( int argc, char *argv[])
             printf( " \n" );
             printf("PATH 2: %s \n", pathpan[ 2 ] );
             printf( " \n" );
-            printf("File [%d]: %s \n", fexist(  nexp_user_fileselection    ) ,  nexp_user_fileselection    );
+            printf("File [%d]: \"%s\" \n", fexist(  nexp_user_fileselection    ) ,  nexp_user_fileselection    );
             printf( " \n" );
 
             //////////////////
@@ -1300,7 +1289,7 @@ int main( int argc, char *argv[])
                nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
+               nrunwith( "   export DISPLAY=:0 ;    feh -FZ  " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "JPG" ) == 0 )
                nrunwith( "   export DISPLAY=:0 ;    feh -FZ  " , nexp_user_fileselection );
@@ -1453,6 +1442,7 @@ int main( int argc, char *argv[])
            strncat( string , "\" " , PATH_MAX - strlen( string ) -1 );
            nsystem( string );  
        }
+
 
        else if ( ch == 'T' ) 
        {
@@ -1632,6 +1622,9 @@ int main( int argc, char *argv[])
             else if ( strcmp( string, "make" ) == 0 )  
                 nsystem( " make " ); 
 
+            else if ( strcmp( string, "rox" ) == 0 )  nsystem( " export DISPLAY=:0 ; rox " ); 
+            else if ( strcmp( string, "cr" ) == 0 )  nsystem( " export DISPLAY=:0 ; chromium-browser " ); 
+
             else if ( strcmp( string, "rc" ) == 0 )  
             {
                enable_waiting_for_enter();
@@ -1659,6 +1652,33 @@ int main( int argc, char *argv[])
                 nsystem( string );  
                 disable_waiting_for_enter();
             }
+
+            else if ( strcmp( string, "f1" ) == 0 )  
+            {
+                //nrunwith(  " lfview ",  nexp_user_fileselection    );   
+                strncpy(  fileclip_selection[ 1 ], nexp_user_fileselection , PATH_MAX );
+            }
+
+            else if ( strcmp( string, "f2" ) == 0 )  
+                strncpy(  fileclip_selection[ 2 ], nexp_user_fileselection , PATH_MAX );
+
+            else if ( strcmp( string, "multi" ) == 0 )  
+            {
+                enable_waiting_for_enter();
+                clear_screen();
+                strncpy( string , "  " , PATH_MAX );
+                strncat( string , " vim -p " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                strncat( string , fileclip_selection[ 1 ] , PATH_MAX - strlen( string ) -1 );
+                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                strncat( string ,  fileclip_selection[ 2 ] , PATH_MAX - strlen( string ) -1 );
+                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                nsystem( string );  
+                disable_waiting_for_enter();
+            }
+
 
             else if ( strcmp( string, "key" ) == 0 )  
             {
@@ -1742,6 +1762,51 @@ int main( int argc, char *argv[])
        }
 
 
+
+
+
+     // run it
+     // 18 is 
+     // 5 is 
+     else if (  ( ch == 18 )    || ( ch == 5 ))   //c-r 18
+     {
+         strncpy( userstrsel, nexp_user_fileselection , PATH_MAX );
+         ansigotoyx( rows-1 , 0 );
+         printhline( );
+         ansigotoyx( rows , 0 );
+         printf( "Open menu...\n" );
+         printhline( );
+           // nice menu 
+           printf("%s", KYEL);
+           gfxrect(   rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
+           gfxframe(  rows*10/100 ,         cols*10/100, rows*90/100, cols*90/100 );
+           mvcenter(  rows*10/100+1, "| MENU LKMMC |");
+           foo = 1;
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " e: ed ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " m: xmplayer ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " p: xmupdf ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: tless ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: untar ");
+           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " v: vim ");
+           printf("%s", KWHT);
+         ch = getchar();
+         enable_waiting_for_enter();
+         printf( "\n" );
+         printf( "Term!\n" );
+         printf( "\n" );
+         printf( "Key %d\n", ch );
+         if ( ch == 'm') { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
+         else if ( ch == 'e' )  nrunwith( " ed  ", userstrsel );
+         else if ( ch == 't' )  nrunwith( " tless  ", userstrsel );
+         else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
+         else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
+         else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
+         else if ( ch == 't' )  nrunwith( " tar xf  ", userstrsel );
+         ch = 0;
+       }
 
 
 
