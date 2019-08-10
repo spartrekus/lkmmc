@@ -6,7 +6,8 @@
 //////////////////////////////////////////
 
 #include <stdio.h>
-#define PATH_MAX 2500
+
+
 #if defined(__linux__) //linux
 #define MYOS 1
 #elif defined(_WIN32)
@@ -19,6 +20,9 @@
 #else
 #define MYOS 0
 #endif
+
+
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -620,6 +624,15 @@ int main( int argc, char *argv[])
 
     ////////////////////////////////////////////////////////
     if ( argc == 2)
+    if ( strcmp( argv[1] , "-os" ) ==  0 ) 
+    {
+       printf("The OS is: %d\n", MYOS );
+       return 0;
+    }
+
+
+    ////////////////////////////////////////////////////////
+    if ( argc == 2)
     if ( strcmp( argv[1] , "-yellow" ) ==  0 ) 
     {
        printf("%syellow\n", KYEL);
@@ -644,7 +657,8 @@ int main( int argc, char *argv[])
 
     ////////////////////////////////////////////////////////
     if ( argc == 2)
-    if ( strcmp( argv[1] , "-path" ) ==  0 ) 
+    if ( ( strcmp( argv[1] , "-path" ) ==  0 ) 
+    || ( strcmp( argv[1] , "--path" ) ==  0 ) )
     {
        printf("Path: %s\n", getcwd( foostrpwd, PATH_MAX ) );
        return 0;
@@ -685,6 +699,8 @@ int main( int argc, char *argv[])
 
     strncpy(  fileclip_selection[ 1 ], "", PATH_MAX );
     strncpy(  fileclip_selection[ 2 ], "", PATH_MAX );
+    strncpy(  fileclip_selection[ 4 ], "", PATH_MAX );
+    strncpy(  fileclip_selection[ 5 ], "", PATH_MAX );
     strncpy(  clipboard, "", PATH_MAX );
 
      ////////////////////////////////////////////////////////
@@ -831,9 +847,14 @@ int main( int argc, char *argv[])
 
        chdir( pathpan[ pansel ] );
 
-      if      (ch ==  'Q')      gameover = 1;
-      else if (ch ==  'q')      gameover = 1;
-
+      if (  (ch ==  'Q')  || ( ch == 'q' ) ) 
+      {
+             clear_screen();
+             enable_waiting_for_enter(); 
+             gameover = 1;
+             printf( "\n" );
+             printf( "Bye!\n" );
+      }
 
       else if  (ch == 'y') 
       {
@@ -878,28 +899,17 @@ int main( int argc, char *argv[])
           if (  fexist(  nexp_user_fileselection    ) == 1 ) 
           {
              if ( fexist( "/usr/local/bin/lfview" ) == 1 ) 
-              nrunwith(  " lfview ",  nexp_user_fileselection    );   
+                 nrunwith(  " lfview ",  nexp_user_fileselection    );   
+             else if ( fexist( "/usr/local/bin/lfless" ) == 1 ) 
+                 nrunwith(  " lfless ",  nexp_user_fileselection    );   
              else
-              nrunwith(  " less ",  nexp_user_fileselection    );   
+                 nrunwith(  " less ",  nexp_user_fileselection    );   
           }
        }
 
-       ////////////////////////////
-       else if ( ch == 15 ) 
-       {
-           strninput( " Change Directory (chdir) ", "" );
-           strncpy( string, userstr , PATH_MAX );
-           printf("\n" );
-           printf("\n" );
-           printf("got: \"%s\"\n", string );
-           if ( strcmp( string , "" ) != 0 )
-           {
-               chdir( pathpan[ pansel ] );
-               chdir( string ) ; 
-               nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; 
-               strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
-           }
-       }
+
+
+
 
 
 
@@ -911,13 +921,14 @@ int main( int argc, char *argv[])
        //////////////////////
        else if ( ch == 'O' ) 
        {
-           strninput( " Change Directory (chdir) from HOME.", "" );
+           //strninput( " Change Directory (chdir) from HOME.", "" );
+           strninput( " Change Directory (chdir).", "" );
            strncpy( string, userstr , PATH_MAX );
            printf("\n" );
            printf("got: \"%s\"\n", string );
            if ( strcmp( string , "" ) != 0 )
            {
-               chdir( getenv( "HOME" ) );
+               //chdir( getenv( "HOME" ) );
                chdir( string ); 
                nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; 
                strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
@@ -938,7 +949,29 @@ int main( int argc, char *argv[])
 
 
 
+       ////////////////////////////
+       /// c-o  ctrl o 
+       ////////////////////////////
        else if ( ch == 15 )   // working ctrl + o
+       {
+           strninput( " Change Directory (chdir) ", "" );
+           strncpy( string, userstr , PATH_MAX );
+           printf("\n" );
+           printf("\n" );
+           printf("got: \"%s\"\n", string );
+           if ( strcmp( string , "" ) != 0 )
+           {
+               chdir( pathpan[ pansel ] );
+               chdir( string ) ; 
+               nexp_user_sel[pansel]=1; nexp_user_scrolly[pansel] = 0; 
+               strncpy( pathpan[ pansel ] , getcwd( cwd, PATH_MAX ), PATH_MAX );
+           }
+       }
+
+       ////////////////////////////
+       /// c-o  ctrl o 
+       ////////////////////////////
+       else if ( ch == 15 ) 
        {
            strninput( " Change Directory (chdir) ", "" );
            strncpy( string, userstr , PATH_MAX );
@@ -956,9 +989,10 @@ int main( int argc, char *argv[])
 
 
 
-
       else if ( ch == 'z' )  
-      {  enable_waiting_for_enter();  nrunwith(  " tless   ",  nexp_user_fileselection    );   }
+      {  enable_waiting_for_enter();  
+         nrunwith(  " tless   ",  nexp_user_fileselection    ); 
+      }
 
 
       else if ( ch == 27 )  
@@ -1607,6 +1641,7 @@ int main( int argc, char *argv[])
               getchar(); 
             }    
 
+
             else if ( strcmp( string, "box" ) == 0 )  
             {
               printf("Box\n" );
@@ -1620,15 +1655,11 @@ int main( int argc, char *argv[])
               getchar();
             }    
 
-            else if ( strcmp( string, "reboot" ) == 0 )  
-                nsystem( " reboot " ); 
-            else if ( strcmp( string, "REBOOT" ) == 0 )  
-                nsystem( " reboot " ); 
-            else if ( strcmp( string, "make" ) == 0 )  
-                nsystem( " make " ); 
+            else if ( strcmp( string, "reboot" ) == 0 )  nsystem( " reboot " ); 
+            else if ( strcmp( string, "REBOOT" ) == 0 )  nsystem( " reboot " ); 
 
-            else if ( strcmp( string, "rox" ) == 0 )  nsystem( " export DISPLAY=:0 ; rox " ); 
-            else if ( strcmp( string, "cr" ) == 0 )  nsystem( " export DISPLAY=:0 ; chromium-browser " ); 
+            else if ( strcmp( string, "gg" ) == 0 )  
+            nsystem( " links netbsd.org  " );
 
             else if ( strcmp( string, "rc" ) == 0 )  
             {
@@ -1641,48 +1672,59 @@ int main( int argc, char *argv[])
                getchar();
             }    
 
-            else if ( strcmp( string, "vim" ) == 0 )  
+
+      else if ( ( strcmp( string, "file1" ) == 0 )  || ( strcmp( string, "f1" ) == 0 )    )
+      strncpy(  fileclip_selection[ 1 ], nexp_user_fileselection , PATH_MAX );
+
+
+
+          else if ( ( strcmp( string, "file2" ) == 0 )  || ( strcmp( string, "f2" ) == 0 )    )
+     strncpy(  fileclip_selection[ 2 ], nexp_user_fileselection , PATH_MAX );
+
+            else if ( ( strcmp( string, "file3" ) == 0 )  || ( strcmp( string, "f3" ) == 0 )    )
+                strncpy(  fileclip_selection[ 3 ], nexp_user_fileselection , PATH_MAX );
+
+            else if ( ( strcmp( string, "file4" ) == 0 )  || ( strcmp( string, "f4" ) == 0 )    )
+                strncpy(  fileclip_selection[ 4 ], nexp_user_fileselection , PATH_MAX );
+
+
+
+            else if ( ( strcmp( string, "multi" ) == 0 )  
+            || ( strcmp( string, "vim" ) == 0 )  )
             {
                 enable_waiting_for_enter();
                 clear_screen();
                 strncpy( string , "  " , PATH_MAX );
                 strncat( string , " vim -p " , PATH_MAX - strlen( string ) -1 );
                 strncat( string , " " , PATH_MAX - strlen( string ) -1 );
-                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
-                strncat( string ,  clipboard , PATH_MAX - strlen( string ) -1 );
-                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
-                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
-                strncat( string ,  nexp_user_fileselection , PATH_MAX - strlen( string ) -1 );
-                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                if ( strcmp( fileclip_selection[ 1 ],  ""  ) != 0 ) 
+                {
+                  strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                  strncat( string ,  fileclip_selection[ 1 ] , PATH_MAX - strlen( string ) -1 );
+                  strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                }
+                if ( strcmp( fileclip_selection[ 2 ],  ""  ) != 0 ) 
+                {
+                  strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                  strncat( string ,  fileclip_selection[ 2 ] , PATH_MAX - strlen( string ) -1 );
+                  strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                }
+                if ( strcmp( fileclip_selection[ 3 ],  ""  ) != 0 ) 
+                {
+                  strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                  strncat( string ,  fileclip_selection[ 3 ] , PATH_MAX - strlen( string ) -1 );
+                  strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                }
+                if ( strcmp( fileclip_selection[ 4 ],  ""  ) != 0 ) 
+                {
+                  strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
+                  strncat( string ,  fileclip_selection[ 4 ] , PATH_MAX - strlen( string ) -1 );
+                  strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
+                }
                 nsystem( string );  
                 disable_waiting_for_enter();
             }
 
-            else if ( strcmp( string, "f1" ) == 0 )  
-            {
-                //nrunwith(  " lfview ",  nexp_user_fileselection    );   
-                strncpy(  fileclip_selection[ 1 ], nexp_user_fileselection , PATH_MAX );
-            }
-
-            else if ( strcmp( string, "f2" ) == 0 )  
-                strncpy(  fileclip_selection[ 2 ], nexp_user_fileselection , PATH_MAX );
-
-            else if ( strcmp( string, "multi" ) == 0 )  
-            {
-                enable_waiting_for_enter();
-                clear_screen();
-                strncpy( string , "  " , PATH_MAX );
-                strncat( string , " vim -p " , PATH_MAX - strlen( string ) -1 );
-                strncat( string , " " , PATH_MAX - strlen( string ) -1 );
-                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
-                strncat( string , fileclip_selection[ 1 ] , PATH_MAX - strlen( string ) -1 );
-                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
-                strncat( string , " \"" , PATH_MAX - strlen( string ) -1 );
-                strncat( string ,  fileclip_selection[ 2 ] , PATH_MAX - strlen( string ) -1 );
-                strncat( string , "\"  " , PATH_MAX - strlen( string ) -1 );
-                nsystem( string );  
-                disable_waiting_for_enter();
-            }
 
 
             else if ( strcmp( string, "key" ) == 0 )  
@@ -1841,9 +1883,12 @@ int main( int argc, char *argv[])
             else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
             else if      ( ch == 'x' ) nrunwith( "  xunidoc " , nexp_user_fileselection );
 
-            else if      ( ch == 'c' ) {  nsystem( " nclock --lock " );  }
 
-            else if ( ( ch == 'o' ) || ( ch == 'O' ) )
+            else if ( ch == 'c' ) 
+              {  nsystem( " nclock --lock " );  }
+
+
+            else if ( ch == 'o' ) 
             {
                printf("- SVN - \n");
                nsystem( " svn commit -m v20  ;  svn add * --force  " );
@@ -1868,6 +1913,8 @@ int main( int argc, char *argv[])
 
     }
 
+    clear_screen();
+    enable_waiting_for_enter(); 
     enable_waiting_for_enter();
     printf( "\n" );
     printf( "Bye!\n" );
