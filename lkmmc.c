@@ -128,6 +128,23 @@ void nsystem( char *mycmd )
 
 
 
+int var_run_x = 0;
+void xnrunwith( char *cmdapp, char *filesource )
+{
+           char cmdi[PATH_MAX];
+           if ( var_run_x == 1 ) 
+              strncpy( cmdi , "  export DISPLAY=:0 ; " , PATH_MAX );
+           else 
+              strncpy( cmdi , "  " , PATH_MAX );
+           strncpy( cmdi , "  " , PATH_MAX );
+           strncat( cmdi , cmdapp , PATH_MAX - strlen( cmdi ) -1 );
+           strncat( cmdi , " " , PATH_MAX - strlen( cmdi ) -1 );
+           strncat( cmdi , " \"" , PATH_MAX - strlen( cmdi ) -1 );
+           strncat( cmdi ,  filesource , PATH_MAX - strlen( cmdi ) -1 );
+           strncat( cmdi , "\" " , PATH_MAX - strlen( cmdi ) -1 );
+           nsystem( cmdi ); 
+}
+
 
 void nrunwith( char *cmdapp, char *filesource )
 {
@@ -1008,6 +1025,7 @@ int main( int argc, char *argv[])
          }
       }
 
+
        else if ( ch == 'w')      
        {
             chdir( pathpan[ pansel ] );
@@ -1313,38 +1331,38 @@ int main( int argc, char *argv[])
                nrunwith( " mplayer " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "tex" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  nedit " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  nedit " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "txt" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  nedit " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  nedit " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "bmr" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  nedit " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  nedit " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "png" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ;    feh  " , nexp_user_fileselection );
+               xnrunwith( "   feh  " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "jpg" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ;    feh -FZ  " , nexp_user_fileselection );
+               xnrunwith( "      feh -FZ  " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "JPG" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ;    feh -FZ  " , nexp_user_fileselection );
+               xnrunwith( "      feh -FZ  " , nexp_user_fileselection );
 
              /// office stuffs
              else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  gnumeric " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  gnumeric " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "xlsx" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  gnumeric " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  gnumeric " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "doc" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  libreoffice " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  libreoffice " , nexp_user_fileselection );
              else if ( strcmp( fextension( nexp_user_fileselection ) , "docx" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  libreoffice " , nexp_user_fileselection );
+               xnrunwith( "   screen -d -m  libreoffice " , nexp_user_fileselection );
 
              /// office stuffs
              else if ( strcmp( fextension( nexp_user_fileselection ) , "pdf" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; screen -d -m  mupdf " , nexp_user_fileselection );
+               xnrunwith( "    screen -d -m  mupdf " , nexp_user_fileselection );
 
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "wad" ) == 0 )
-               nrunwith( "   export DISPLAY=:0 ; prboom-plus -iwad " , nexp_user_fileselection );
+               xnrunwith( "    prboom-plus -iwad " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "PDF" ) == 0 )
                nrunwith( " mupdf " , nexp_user_fileselection );
@@ -1376,32 +1394,12 @@ int main( int argc, char *argv[])
                 disable_waiting_for_enter();
              }
 
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "gif" ) == 0 )
-             //  nrunwith( " feh  " , nexp_user_fileselection );
-
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "doc" ) == 0 )
-             //  nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "xls" ) == 0 )
-             //  nrunwith( "   export DISPLAY=:0 ; screen -d -m libreoffice " , nexp_user_fileselection );
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "fig" ) == 0 )
-             //nrunwith( "   export DISPLAY=:0 ; screen -d -m  xfig " , nexp_user_fileselection );
-
-
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "mrk" ) == 0 )
-             //  nrunwith( " vim " , nexp_user_fileselection );
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "bmr" ) == 0 )
-             //  nrunwith( " vim " , nexp_user_fileselection );
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "txt" ) == 0 )
-             //  nrunwith( " vim " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "ws1" ) == 0 )
                nrunwith( " freelotus123 " , nexp_user_fileselection );
 
              else if ( strcmp( fextension( nexp_user_fileselection ) , "csv" ) == 0 )
                nrunwith( " freelotus123 " , nexp_user_fileselection );
-
-             //else if ( strcmp( fextension( nexp_user_fileselection ) , "csv" ) == 0 )
-             //  nrunwith( " plotcsv " , nexp_user_fileselection );
 
              else 
                nrunwith( " rox " , nexp_user_fileselection );
@@ -1833,7 +1831,6 @@ int main( int argc, char *argv[])
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " e: ed ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " m: xmplayer ");
-           printat(   rows*10/100+1+foo++ , cols*10/100+1 , " p: xmupdf ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: tless ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " l: less ");
            printat(   rows*10/100+1+foo++ , cols*10/100+1 , " t: untar ");
@@ -1848,7 +1845,6 @@ int main( int argc, char *argv[])
          if ( ch == 'm') { printf( "mplayer\n" );  nrunwith( " export DISPLAY=:0 ; mplayer ", userstrsel ); }
          else if ( ch == 'e' )  nrunwith( " ed  ", userstrsel );
          else if ( ch == 't' )  nrunwith( " tless  ", userstrsel );
-         else if ( ch == 'p' ) { printf( "mupdf\n" );  nrunwith( " export DISPLAY=:0 ;   mupdf ", userstrsel ); }
          else if ( ch == 'f' ) { printf( "feh\n" );  nrunwith( " export DISPLAY=:0 ; feh     ", userstrsel ); }
          else if ( ch == 'l' )  nrunwith( " less  ", userstrsel );
          else if ( ch == 't' )  nrunwith( " tar xf  ", userstrsel );
@@ -1867,7 +1863,7 @@ int main( int argc, char *argv[])
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: xterm");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "u: unidoc");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "s: sunidoc");
-            printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: xunidoc");
+            printat(   rows*30/100 +foo++ , cols*30/100+1 , "x: set X11 display :0");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "t: make mrk/bmr");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "m: make with texmaker");
             printat(   rows*30/100 +foo++ , cols*30/100+1 , "c: nclock");
@@ -1881,8 +1877,7 @@ int main( int argc, char *argv[])
 
             else if      ( ch == 'u' ) nrunwith( "  unidoc " , nexp_user_fileselection );
             else if      ( ch == 's' ) nrunwith( "  sunidoc " , nexp_user_fileselection );
-            else if      ( ch == 'x' ) nrunwith( "  xunidoc " , nexp_user_fileselection );
-
+            else if      ( ch == 'x' ) var_run_x = 1;
 
             else if ( ch == 'c' ) 
               {  nsystem( " nclock --lock " );  }
